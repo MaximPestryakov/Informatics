@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Hello</title>
+</head>
+
+<body>
+  <textarea id="source-code"></textarea>
+  <br>
+  <textarea id="test"></textarea>
+  <br>
+  <select id="langs-list">
+    <option value="1">GNU C++ 4.9</option>
+    <option value="2">Java JDK 1.7</option>
+    <option value="3">Python 3.3</option>
+  </select>
+  <br>
+  <button id="send_code">Отправить код</button>
+  <button id="refresh_table">Обновить</button>
+  <table id="solutions-table" border=1>
+    <tr>
+      <td>ID</td>
+      <td>Status</td>
+      <td>Lang</td>
+      <td>Source</td>
+      <td>Input</td>
+      <td>Output</td>
+    </tr>
+  </table>
+  <script id="solutions-template" type="text/x-jquery-tmpl">
+    {%each solutions%}
+    <tr>
+      <td>${id}</td>
+      <td>${status}</td>
+      <td>${lang}</td>
+      <td><a href="/get-solution?type=source&id=${id}">Source</a></td>
+      <td><a href="/get-solution?type=input&id=${id}">Input</a></td>
+      <td><a href="/get-solution?type=output&id=${id}">Output</a></td>
+    </tr>
+    {%/each%}
+  </script>
+</body>
+<script src="static/jquery-2.2.1.min.js"></script>
+<script src="static/jquery.tmpl-1.0.4.min.js"></script>
+<script src="static/jquery.cookie-1.4.1.min.js"></script>
+<script src="static/script.js"></script>
+
+</html>
