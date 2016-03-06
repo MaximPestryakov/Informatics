@@ -18,15 +18,19 @@
   <br>
   <button id="send_code">Отправить код</button>
   <button id="refresh_table">Обновить</button>
-  <table id="solutions-table" border=1>
-    <tr>
-      <td>ID</td>
-      <td>Status</td>
-      <td>Lang</td>
-      <td>Source</td>
-      <td>Input</td>
-      <td>Output</td>
-    </tr>
+  <table border=1>
+    <tbody>
+      <tr>
+        <td>ID</td>
+        <td>Status</td>
+        <td>Lang</td>
+        <td>Source</td>
+        <td>Input</td>
+        <td>Output</td>
+      </tr>
+    </tbody>
+    <tbody id="solutions-table">
+    </tbody>
   </table>
   <script id="solutions-template" type="text/x-jquery-tmpl">
     {%each solutions%}
@@ -34,9 +38,9 @@
       <td>${id}</td>
       <td>${status}</td>
       <td>${lang}</td>
-      <td><a href="/get-solution?type=source&id=${id}">Source</a></td>
-      <td><a href="/get-solution?type=input&id=${id}">Input</a></td>
-      <td><a href="/get-solution?type=output&id=${id}">Output</a></td>
+      <td><a href="/get-solution/${id}/main.cpp">Source</a></td>
+      <td><a href="/get-solution/${id}/input.txt">Input</a></td>
+      <td><a href="/get-solution/${id}/output.txt">Output</a></td>
     </tr>
     {%/each%}
   </script>
