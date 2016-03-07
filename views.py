@@ -17,8 +17,8 @@ def get_session(request):
 def send_code(request):
   session = request.session
   solution_id = get_last_id() + 1
-  create_solution(request.params['source_code'], request.params['test'], solution_id, request.params['lang'])
-  thread = Thread(target=run_solution, args=(solution_id, request.params['lang']))
+  create_solution(request.params['source_code'], request.params['test'], solution_id, int(request.params['lang']))
+  thread = Thread(target=run_solution, args=(solution_id, int(request.params['lang'])))
   thread.daemon = True
   thread.start()
   if 'solutions' not in session:
