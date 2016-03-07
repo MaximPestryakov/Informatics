@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Hello</title>
+  <title>Informatics Tester</title>
 </head>
 
 <body>
@@ -11,10 +11,12 @@
   <textarea id="test"></textarea>
   <br>
   <select id="langs-list">
-    <option value="1">GNU C++ 4.9</option>
-    <option value="2">Java JDK 1.7</option>
-    <option value="3">Python 3.3</option>
   </select>
+  <script id="langs-list-template" type="text/x-jquery-tmpl">
+    {%each langs%}
+    <option value="${id}">${name} ${version}</option>
+    {%/each%}
+  </script>
   <br>
   <button id="send_code">Отправить код</button>
   <button id="refresh_table">Обновить</button>

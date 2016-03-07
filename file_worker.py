@@ -1,14 +1,23 @@
+from .config import *
+from json import dumps, loads
 from os import mkdir
-from subprocess import Popen, PIPE
+from subprocess import getstatusoutput
 
+def make_info(solution_id, lang_id, status, code = 0, output = ''):
+  info = dumps({'id': solution_id, 'lang': lang_id, 'status': 0})
+  create_file('solutions/{solution_id}/info.json'.format(solution_id=solution_id), info)
 
-EXECUTOR = '/opt/ejudge/bin/ejudge-execute'
-COMPILER = '/home/pestryakov/judges/compile/scripts/'
-LANGS = ['g++', 'javac', 'python3']
+def get_info(solution_id):
+  file = open('solutions/{solution_id}/info.json'.format(solution_id=solution_id), 'r')
+  info = file.read()
+  file.close()
+  info = loads(info)
+  info['lang'] = LANGS[info['lang']]['name'] + ' ' + LANGS[info['lang']]['version']
+  return info
 
 def create_solution(source_code, test, solution_id, lang_id):
   mkdir('solutions/{solution_id}'.format(solution_id=solution_id))
-  create_file('solutions/{solution_id}/main.cpp'.format(solution_id=solution_id), source_code)
+  create_file('solutions/{solution_id}/main.{extension}'.format(solution_id=solution_id, extension=LANGS[lang_id]['extension']), source_code)
   create_file('solutions/{solution_id}/input.txt'.format(solution_id=solution_id), test)
 
 def create_file(file_path, text):
@@ -17,24 +26,22 @@ def create_file(file_path, text):
   file.close()
 
 def compile_solution(solution_id, lang_id):
-  command = '{compiler}{lang} solutions/{solution_id}/main.cpp solutions/{solution_id}/main'.format(compiler=COMPILER, lang=LANGS[lang_id-1], solution_id=solution_id)
-  proc = Popen(command, shell=True)
-  out, err = proc.communicate()
-  errcode = proc.returncode
+  make_info(solution_id, lang_id, 1)
+  command = '{compiler}{command} solutions/{solution_id}/main.{extension} solutions/{solution_id}/main'.format(compiler=COMPILER, command=LANGS[lang_id]['command'], solution_id=solution_id, extension=LANGS[lang_id]['extension'])
+  return getstatusoutput(command)
 
 def run_solution(solution_id, lang_id):
-  compile_solution(solution_id, lang_id)
-  command = '{executor} --stdin=solutions/{solution_id}/input.txt --stdout=solutions/{solution_id}/output.txt ./solutions/{solution_id}/main'.format(executor=EXECUTOR, solution_id=solution_id)
-  proc = Popen(command, stdout=PIPE, shell=True)
-  out, err = proc.communicate()
-  errcode = proc.returncode
-  #create_file('solutions/{solution_id}/log.txt'.format(solution_id=solution_id), out.decode())
+  code, output = compile_solution(solution_id, lang_id)
+  make_info(solution_id, lang_id, 2, code, output)
+  command = '{executor} --time-limit=5 --stdin=solutions/{solution_id}/input.txt --stdout=solutions/{solution_id}/output.txt ./solutions/{solution_id}/main'.format(executor=EXECUTOR, solution_id=solution_id)
+  code, output = getstatusoutput(command)
+  make_info(solution_id, lang_id, 0, code, output)
 
 def get_last_id():
   command = 'ls solutions | grep ^[1-9][0-9]*$ | sort -n | tail -1'
-  proc = Popen(command, stdout=PIPE, shell=True)
-  out, err = proc.communicate()
-  errcode = proc.returncode
-  if out == b'':
-    return 0
-  return int(out)
+  code, output = getstatusoutput(command)
+  if output.isdecimal():
+    return int(output)
+  if output != '':
+    mkdir('solutions')
+  return 0

@@ -11,6 +11,7 @@ def main(global_config, **settings):
   config.add_route('get-session', '/get-session')
   config.add_route('get-solution', '/get-solution/{id}/{file}')
   config.add_route('get-solutions', '/get-solutions')
+  config.add_route('get-langs', '/get-langs')
   config.add_route('home', '/')
   config.add_route('send-code', '/send-code')
 

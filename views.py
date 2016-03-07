@@ -32,8 +32,8 @@ def get_solutions(request):
   if 'solutions' not in session:
     return Response()
   resp = list()
-  for sol in session['solutions']:
-    resp.append({'id': sol, 'lang': 1, 'status': 1})
+  for solution_id in session['solutions']:
+    resp.append(get_info(solution_id))
   return Response(json_body=resp)
 
 @view_config(route_name='get-solution')
@@ -50,3 +50,10 @@ def get_solution(request):
       return Response('File doesn\'t exists')
     return Response('Invalid file')
   return Response('No id in session')
+
+@view_config(route_name='get-langs')
+def get_langs(request):
+  langs = list()
+  for lang_id, lang in LANGS.items():
+    langs.append({'id': lang_id, 'name': lang['name'], 'version': lang['version']})
+  return Response(json_body=langs)

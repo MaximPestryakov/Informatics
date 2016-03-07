@@ -1,5 +1,4 @@
-STATUS = ["OK"]
-LANG = ["GNU C++ 4.9", "Java JDK 1.7", "Python 3.3"]
+STATUS = ['OK', 'Compiling', 'Running']
 solutions_table = $("#solutions-table").html()
 
 $("#refresh_table").click(refresh_table = function() {
@@ -7,8 +6,7 @@ $("#refresh_table").click(refresh_table = function() {
     url: "get-solutions",
     success: function(solutions) {
       solutions.forEach(function(object) {
-        object.status = STATUS[object.status - 1]
-        object.lang = LANG[object.lang - 1]
+        object.status = STATUS[object.status]
       })
       $("#solutions-table").html($("#solutions-template").tmpl({ solutions }))
     }
@@ -29,4 +27,14 @@ $("#send_code").click(function() {
   })
 })
 
+function make_langs_list() {
+  $.ajax({
+    url: "get-langs",
+    success: function(langs) {
+      $("#langs-list").html($("#langs-list-template").tmpl({ langs }))
+    }
+  })
+}
+
+make_langs_list()
 refresh_table()
