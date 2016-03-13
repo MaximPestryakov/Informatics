@@ -27,8 +27,9 @@
         <td>Status</td>
         <td>Lang</td>
         <td>Source</td>
-        <td>Input</td>
-        <td>Output</td>
+        <td>Stdin</td>
+        <td colspan="2">Run</td>
+        <td colspan="2">Comilation</td>
       </tr>
     </tbody>
     <tbody id="solutions-table">
@@ -40,9 +41,12 @@
       <td>${id}</td>
       <td>${status}</td>
       <td>${lang}</td>
-      <td><a href="/get-solution/${id}/main.cpp">Source</a></td>
-      <td><a href="/get-solution/${id}/input.txt">Input</a></td>
-      <td><a href="/get-solution/${id}/output.txt">Output</a></td>
+      <td><a href="/get-solution/${id}/main.${extension}">Source</a></td>
+      <td><a href="/get-solution/${id}/stdin.txt">Stdin</a></td>
+      <td><a href="/get-solution/${id}/r_stdout.txt">Stdout</a></td>
+      <td><a href="/get-solution/${id}/r_stderr.txt">Stderr</a></td>
+      <td><a href="/get-solution/${id}/c_stdout.txt">Stdout</a></td>
+      <td><a href="/get-solution/${id}/c_stderr.txt">Stderr</a></td>
     </tr>
     {%/each%}
   </script>

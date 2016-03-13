@@ -31,9 +31,7 @@ def get_solutions(request):
   session = request.session
   if 'solutions' not in session:
     return Response()
-  resp = list()
-  for solution_id in session['solutions']:
-    resp.append(get_info(solution_id))
+  resp = [get_info(solution_id) for solution_id in session['solutions']]
   return Response(json_body=resp)
 
 @view_config(route_name='get-solution')
@@ -44,7 +42,8 @@ def get_solution(request):
   id = int(request.matchdict['id'])
   file = request.matchdict['file']
   if id in session['solutions']:
-    if file in ('input.txt', 'output.txt', 'main.cpp', 'log.txt'):
+    info = get_info(id)
+    if file in ('stdin.txt', 'r_stdout.txt', 'r_stderr.txt', 'c_stdout.txt', 'c_stderr.txt', 'main.%s' % info['extension']):
       if isfile('solutions/%d/%s' % (id, file)):
         return FileResponse('solutions/%d/%s' % (id, file), content_type='text/plain')
       return Response('File doesn\'t exists')

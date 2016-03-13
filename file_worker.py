@@ -1,47 +1,59 @@
 from .config import *
-from json import dumps, loads
 from os import mkdir
-from subprocess import getstatusoutput
+from subprocess import Popen, PIPE
+import json
+import os.path
 
-def make_info(solution_id, lang_id, status, code = 0, output = ''):
-  info = dumps({'id': solution_id, 'lang': lang_id, 'status': 0})
-  create_file('solutions/{solution_id}/info.json'.format(solution_id=solution_id), info)
+def run_process(args):
+  proc = Popen(args, stdout=PIPE, stderr=PIPE, shell=True)
+  return tuple(val.decode() for val in proc.communicate())
+
+def make_info(solution_id, lang_id, status):
+  info = json.dumps({'id': solution_id, 'lang_id': lang_id, 'status': status})
+  create_file('{solutions}/{solution_id}/info.json'.format(solutions=SOLUTIONS, solution_id=solution_id), info)
 
 def get_info(solution_id):
-  file = open('solutions/{solution_id}/info.json'.format(solution_id=solution_id), 'r')
-  info = file.read()
-  file.close()
-  info = loads(info)
-  info['lang'] = LANGS[info['lang']]['name'] + ' ' + LANGS[info['lang']]['version']
-  return info
+  with open('{solutions}/{solution_id}/info.json'.format(solutions=SOLUTIONS, solution_id=solution_id), 'r') as file:
+    info = json.load(file)
+    info['lang'] = LANGS[info['lang_id']]['name'] + ' ' + LANGS[info['lang_id']]['version']
+    info['extension'] = LANGS[info['lang_id']]['extension']
+    return info
 
 def create_solution(source_code, test, solution_id, lang_id):
-  mkdir('solutions/{solution_id}'.format(solution_id=solution_id))
-  create_file('solutions/{solution_id}/main.{extension}'.format(solution_id=solution_id, extension=LANGS[lang_id]['extension']), source_code)
-  create_file('solutions/{solution_id}/input.txt'.format(solution_id=solution_id), test)
+  path = '{solutions}/{solution_id}'.format(solutions=SOLUTIONS, solution_id=solution_id)
+  mkdir(path)
+  create_file('{path}/main.{extension}'.format(path=path, extension=LANGS[lang_id]['extension']), source_code)
+  create_file('{path}/stdin.txt'.format(path=path), test)
 
 def create_file(file_path, text):
-  file = open(file_path, 'w')
-  file.write(text)
-  file.close()
+  with open(file_path, 'w') as file:
+    print(text, file=file)
 
 def compile_solution(solution_id, lang_id):
   make_info(solution_id, lang_id, 1)
-  command = '{compiler}{command} solutions/{solution_id}/main.{extension} solutions/{solution_id}/main'.format(compiler=COMPILER, command=LANGS[lang_id]['command'], solution_id=solution_id, extension=LANGS[lang_id]['extension'])
-  return getstatusoutput(command)
+  path = '{solutions}/{solution_id}'.format(solutions=SOLUTIONS, solution_id=solution_id)
+  command = '{compiler}{command} {path}/main.{extension} {path}/main'.format(compiler=COMPILER, command=LANGS[lang_id]['command'], path=path, extension=LANGS[lang_id]['extension'])
+  return run_process(command)
 
 def run_solution(solution_id, lang_id):
-  code, output = compile_solution(solution_id, lang_id)
-  make_info(solution_id, lang_id, 2, code, output)
-  command = '{executor} --time-limit=5 --stdin=solutions/{solution_id}/input.txt --stdout=solutions/{solution_id}/output.txt ./solutions/{solution_id}/main'.format(executor=EXECUTOR, solution_id=solution_id)
-  code, output = getstatusoutput(command)
-  make_info(solution_id, lang_id, 0, code, output)
+  out, err = compile_solution(solution_id, lang_id)
+  create_file('{solutions}/{solution_id}/c_stdout.txt'.format(solutions=SOLUTIONS, solution_id=solution_id), out)
+  create_file('{solutions}/{solution_id}/c_stderr.txt'.format(solutions=SOLUTIONS, solution_id=solution_id), err)
+  make_info(solution_id, lang_id, 2)
+  path = '{solutions}/{solution_id}'.format(solutions=SOLUTIONS, solution_id=solution_id)
+  if os.path.isfile('{path}/main'.format(path=path)):
+    command = '{executor} --time-limit=5 --stdin={path}/stdin.txt --stdout={path}/r_stdout.txt --stderr={path}/r_stderr.txt {path}/main'.format(executor=EXECUTOR, path=path)
+    out, err = run_process(command)
+    make_info(solution_id, lang_id, 0)
+  else:
+    make_info(solution_id, lang_id, 3)
 
 def get_last_id():
-  command = 'ls solutions | grep ^[1-9][0-9]*$ | sort -n | tail -1'
-  code, output = getstatusoutput(command)
-  if output.isdecimal():
-    return int(output)
-  if output != '':
-    mkdir('solutions')
-  return 0
+  command = 'ls {solutions} | grep ^[1-9][0-9]*$ | sort -n | tail -1'.format(solutions=SOLUTIONS)
+  out, err = run_process(command)
+  try:
+    return int(out)
+  except ValueError:
+    if out != '':
+      mkdir(SOLUTIONS)
+    return 0

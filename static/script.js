@@ -1,13 +1,11 @@
-STATUS = ['OK', 'Compiling', 'Running']
-solutions_table = $("#solutions-table").html()
+STATUS = ['OK', 'Compiling', 'Running', 'Compilation error']
 
 $("#refresh_table").click(refresh_table = function() {
   $.ajax({
     url: "get-solutions",
     success: function(solutions) {
-      solutions.forEach(function(object) {
-        object.status = STATUS[object.status]
-      })
+      for (i = 0; i < solutions.length; ++i)
+        solutions[i].status = STATUS[solutions[i].status]
       $("#solutions-table").html($("#solutions-template").tmpl({ solutions }))
     }
   })
