@@ -31,7 +31,7 @@ def get_solutions(request):
   session = request.session
   if 'solutions' not in session:
     return Response()
-  resp = [get_info(solution_id) for solution_id in session['solutions']]
+  resp = list(map(get_info, session.get('solutions', [])))
   return Response(json_body=resp)
 
 @view_config(route_name='get-solution')

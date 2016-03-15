@@ -1,7 +1,6 @@
 EXECUTOR = '/opt/ejudge/bin/ejudge-execute'
 COMPILER = '/home/pestryakov/judges/compile/scripts/'
 SOLUTIONS = '/home/pestryakov/informatics_project/informatics_project/solutions'
-STATUS = ['OK', 'Compiling', 'Running', 'Compilation error']
 LANGS = {
   1: {
     'name': 'Free Pascal',

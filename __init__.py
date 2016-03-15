@@ -1,10 +1,16 @@
+from .config import *
+from os import mkdir
+from os.path import isdir
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 
-
 def main(global_config, **settings):
+  if not isdir(SOLUTIONS):
+    mkdir(SOLUTIONS)
+
   session = SignedCookieSessionFactory(secret='mktmDndvkVMjXOGMOETLhxyFExJOdW', max_age=60*60*24*365*50)
   config = Configurator(settings=settings, session_factory=session)
+
   config.add_static_view('static', 'static')
   config.add_static_view('solutions', 'solutions')
 
