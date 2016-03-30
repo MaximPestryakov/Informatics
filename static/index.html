@@ -6,9 +6,9 @@
 </head>
 
 <body>
-  <textarea id="source-code"></textarea>
+  <textarea id="source-code" cols="60" rows="20"></textarea>
   <br>
-  <textarea id="test"></textarea>
+  <textarea id="test" cols="60" rows="10"></textarea>
   <br>
   <select id="langs-list">
   </select>
@@ -18,8 +18,14 @@
     {%/each%}
   </script>
   <br>
-  <button id="send_code">Отправить код</button>
-  <button id="refresh_table">Обновить</button>
+  Ограничение времени (сек): <br>
+  <input id="time-limit" type="number"></input>
+  <br>
+  Ограничение памяти (мб): <br>
+  <input id="memory-limit" type="number"></input>
+  <br>
+  <button id="send-code">Отправить код</button>
+  <button id="refresh-table">Обновить</button>
   <table border=1>
     <tbody>
       <tr>

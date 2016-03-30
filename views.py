@@ -1,4 +1,6 @@
+from .config import *
 from .file_worker import *
+from .solution import Solution
 from os.path import isfile
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
@@ -16,14 +18,13 @@ def get_session(request):
 @view_config(route_name='send-code')
 def send_code(request):
   session = request.session
-  solution_id = get_last_id() + 1
-  create_solution(request.params['source_code'], request.params['test'], solution_id, int(request.params['lang']))
-  thread = Thread(target=run_solution, args=(solution_id, int(request.params['lang'])))
+  solution = Solution(request.params['source_code'], request.params['test'], int(request.params['lang']), int(request.params['time_limit']), int(request.params['memory_limit']))
+  thread = Thread(target=solution.run)
   thread.daemon = True
   thread.start()
   if 'solutions' not in session:
     session['solutions'] = list()
-  session['solutions'].append(solution_id)
+  session['solutions'].append(solution.id)
   return Response()
 
 @view_config(route_name='get-solutions')
@@ -31,7 +32,7 @@ def get_solutions(request):
   session = request.session
   if 'solutions' not in session:
     return Response()
-  resp = list(map(get_info, session.get('solutions', [])))
+  resp = list(map(Solution.get_info, session.get('solutions', [])))
   return Response(json_body=resp)
 
 @view_config(route_name='get-solution')
@@ -42,7 +43,7 @@ def get_solution(request):
   id = int(request.matchdict['id'])
   file = request.matchdict['file']
   if id in session['solutions']:
-    info = get_info(id)
+    info = Solution.get_info(id)
     if file in ('stdin.txt', 'r_stdout.txt', 'r_stderr.txt', 'c_stdout.txt', 'c_stderr.txt', 'main.%s' % info['extension']):
       if isfile('solutions/%d/%s' % (id, file)):
         return FileResponse('solutions/%d/%s' % (id, file), content_type='text/plain')

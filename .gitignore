@@ -1,4 +1,5 @@
 *.out
 *.pyc
 __pycache__/
+redis_connect.py
 solutions/

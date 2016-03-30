@@ -1,6 +1,6 @@
 STATUS = ['OK', 'Compiling', 'Running', 'Compilation error']
 
-$("#refresh_table").click(refresh_table = function() {
+$("#refresh-table").click(refresh_table = function() {
   $.ajax({
     url: "get-solutions",
     success: function(solutions) {
@@ -11,13 +11,15 @@ $("#refresh_table").click(refresh_table = function() {
   })
 })
 
-$("#send_code").click(function() {
+$("#send-code").click(function() {
   source_code = $("#source-code").val()
   test = $("#test").val()
   lang = $("#langs-list").val()
+  time_limit = $("#time-limit").val()
+  memory_limit = $("#memory-limit").val()
   $.post({
     url: "send-code",
-    data: { source_code, test, lang },
+    data: { source_code, test, lang, time_limit, memory_limit },
     success: function(data) {
       alert("OK")
       refresh_table()
