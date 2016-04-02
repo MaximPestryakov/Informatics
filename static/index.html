@@ -29,13 +29,18 @@
   <table border=1>
     <tbody>
       <tr>
-        <td>ID</td>
-        <td>Status</td>
-        <td>Lang</td>
-        <td>Source</td>
-        <td>Stdin</td>
-        <td colspan="2">Run</td>
-        <td colspan="2">Comilation</td>
+        <td><b>ID</b></td>
+        <td><b>Status</b></td>
+        <td><b>Lang</b></td>
+        <td><b>Time limit</b></td>
+        <td><b>Memory limit</b></td>
+        <td><b>CPU time</b></td>
+        <td><b>Real time</b></td>
+        <td><b>VM size</b></td>
+        <td><b>Source</b></td>
+        <td><b>Stdin</b></td>
+        <td colspan="2"><b>Run</b></td>
+        <td colspan="2"><b>Comilation</b></td>
       </tr>
     </tbody>
     <tbody id="solutions-table">
@@ -47,6 +52,11 @@
       <td>${id}</td>
       <td>${status}</td>
       <td>${lang}</td>
+      <td>${time_limit} s</td>
+      <td>${memory_limit} MB</td>
+      <td>${cputime} ms</td>
+      <td>${realtime} ms</td>
+      <td>${vmsize} B</td>
       <td><a href="/get-solution/${id}/main.${extension}">Source</a></td>
       <td><a href="/get-solution/${id}/stdin.txt">Stdin</a></td>
       <td><a href="/get-solution/${id}/r_stdout.txt">Stdout</a></td>

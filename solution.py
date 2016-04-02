@@ -32,10 +32,19 @@ class Solution:
       command = '{executor} --time-limit={time} --memory-limit --max-vm-size={memory}M --stdin={path}/stdin.txt --stdout={path}/r_stdout.txt --stderr={path}/r_stderr.txt {path}/main'.format(executor=EXECUTOR, path=self.path, time=self.time_limit, memory=self.memory_limit)
       out, err = run_process(command)
       create_file('{path}/log_out.txt'.format(path=self.path), out)
-      create_file('{path}/log_erredis.txt'.format(path=self.path), err)
-      self.set_status(Status.OK)
+      create_file('{path}/log_err.txt'.format(path=self.path), err)
+      self.make_info(err)
     else:
       self.set_status(Status.CE)
+
+  def make_info(self, log):
+    for key, value in [line.split(':') for line in log.split('\n') if line.count(':') == 1]:
+      key = key.strip().lower()
+      value = value.strip()
+      if key == 'status':
+        value = {'OK': 0, 'CE': 3, 'TL': 4, 'RT': 5, 'ML': 6}[value]
+      if key in ('status', 'cputime', 'realtime', 'vmsize'):
+        redis.set('solution:{id}:{key}'.format(id=self.id, key=key), value)
 
   def set_status(self, status):
     redis.set('solution:{id}:status'.format(id=self.id), status)
@@ -50,6 +59,9 @@ class Solution:
     info.lang_id = int(redis.get('solution:{id}:lang'.format(id=solution_id)))
     info.time_limit = int(redis.get('solution:{id}:time'.format(id=solution_id)))
     info.memory_limit = int(redis.get('solution:{id}:memory'.format(id=solution_id)))
+    info.cputime = int(redis.get('solution:{id}:cputime'.format(id=solution_id)) or 0)
+    info.realtime = int(redis.get('solution:{id}:realtime'.format(id=solution_id)) or 0)
+    info.vmsize = int(redis.get('solution:{id}:vmsize'.format(id=solution_id)) or 0)
     info.lang = LANGS[info.lang_id]['name'] + ' ' + LANGS[info.lang_id]['version']
     info.extension = LANGS[info.lang_id]['extension']
     return info

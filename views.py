@@ -1,5 +1,6 @@
 from .config import *
 from .file_worker import *
+from .redis_connect import redis
 from .solution import Solution
 from os.path import isfile
 from pyramid.response import FileResponse, Response
@@ -33,7 +34,6 @@ def get_solutions(request):
   session = request.session
   if 'solutions' not in session:
     return Response()
-  #resp = list(map(Solution.get_info, session.get('solutions', [])))
   resp = [Solution.get_info(id).__dict__ for id in session['solutions']]
   return Response(json_body=resp)
 
