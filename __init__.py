@@ -21,5 +21,5 @@ def main(global_config, **settings):
   config.add_route('home', '/')
   config.add_route('send-code', '/send-code')
 
-  config.scan()
+  config.scan(ignore='.redis_listener')
   return config.make_wsgi_app()

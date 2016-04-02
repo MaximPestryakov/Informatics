@@ -1,4 +1,4 @@
-STATUS = ['OK', 'Compiling', 'Running', 'Compilation error']
+STATUS = ['OK', 'Compiling', 'Running', 'Compilation error', 'Time limit', 'Runtime error', 'Memory limit', 'Queue']
 
 $("#refresh-table").click(refresh_table = function() {
   $.ajax({

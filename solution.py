@@ -1,24 +1,22 @@
-from .config import *
-from .file_worker import *
-from .redis_connect import redis_db as r
 from os import mkdir
-import json
 import os.path
 
+if __name__ == 'solution':
+  from config import *
+  from file_worker import *
+  from redis_connect import redis
+else:
+  from .config import *
+  from .file_worker import *
+  from .redis_connect import redis
+
 class Solution:
-  def __init__(self,  source_code, test, lang_id, time_limit, memory_limit):
-    self.id = r.incr('solution:id')
-    self.source_code = source_code
-    self.test = test
-    self.lang_id = lang_id
-    self.time_limit = time_limit
-    self.memory_limit = memory_limit
-    self.path = '{solutions}/{solution_id}'.format(solutions=SOLUTIONS, solution_id=self.id)
-    self.set_status(Status.Queue)
-    self.set_lang()
-    mkdir(self.path)
-    create_file('{path}/main.{extension}'.format(path=self.path, extension=LANGS[self.lang_id]['extension']), self.source_code)
-    create_file('{path}/stdin.txt'.format(path=self.path), self.test)
+  def __init__(self, id):
+    self.id = id
+    self.lang_id = int(redis.get('solution:{id}:lang'.format(id=id)))
+    self.time_limit = int(redis.get('solution:{id}:time'.format(id=id)))
+    self.memory_limit = int(redis.get('solution:{id}:memory'.format(id=id)))
+    self.path = '{solutions}/{solution_id}'.format(solutions=SOLUTIONS, solution_id=id)
 
   def compile(self):
     self.set_status(Status.Compiling)
@@ -34,22 +32,37 @@ class Solution:
       command = '{executor} --time-limit={time} --memory-limit --max-vm-size={memory}M --stdin={path}/stdin.txt --stdout={path}/r_stdout.txt --stderr={path}/r_stderr.txt {path}/main'.format(executor=EXECUTOR, path=self.path, time=self.time_limit, memory=self.memory_limit)
       out, err = run_process(command)
       create_file('{path}/log_out.txt'.format(path=self.path), out)
-      create_file('{path}/log_err.txt'.format(path=self.path), err)
+      create_file('{path}/log_erredis.txt'.format(path=self.path), err)
       self.set_status(Status.OK)
     else:
       self.set_status(Status.CE)
 
   def set_status(self, status):
-    r.set('solution:{id}:status'.format(id=self.id), status)
-
-  def set_lang(self):
-    r.set('solution:{id}:lang'.format(id=self.id), self.lang_id)
+    redis.set('solution:{id}:status'.format(id=self.id), status)
 
   @staticmethod
   def get_info(solution_id):
-    status = int(r.get('solution:{id}:status'.format(id=solution_id)))
-    lang_id = int(r.get('solution:{id}:lang'.format(id=solution_id)))
-    info = {'id': solution_id, 'lang_id': lang_id, 'status': status}
-    info['lang'] = LANGS[info['lang_id']]['name'] + ' ' + LANGS[info['lang_id']]['version']
-    info['extension'] = LANGS[info['lang_id']]['extension']
+    class Info:
+      pass
+    info = Info()
+    info.id = solution_id
+    info.status = int(redis.get('solution:{id}:status'.format(id=solution_id)))
+    info.lang_id = int(redis.get('solution:{id}:lang'.format(id=solution_id)))
+    info.time_limit = int(redis.get('solution:{id}:time'.format(id=solution_id)))
+    info.memory_limit = int(redis.get('solution:{id}:memory'.format(id=solution_id)))
+    info.lang = LANGS[info.lang_id]['name'] + ' ' + LANGS[info.lang_id]['version']
+    info.extension = LANGS[info.lang_id]['extension']
     return info
+
+  @staticmethod
+  def create(source_code, test, lang_id, time_limit, memory_limit):
+    id = redis.incr('solution:id')
+    redis.set('solution:{id}:lang'.format(id=id), lang_id)
+    redis.set('solution:{id}:time'.format(id=id), time_limit)
+    redis.set('solution:{id}:memory'.format(id=id), memory_limit)
+    redis.set('solution:{id}:status'.format(id=id), Status.Queue)
+    path = '{solutions}/{id}'.format(solutions=SOLUTIONS, id=id)
+    mkdir(path)
+    create_file('{path}/main.{extension}'.format(path=path, extension=LANGS[lang_id]['extension']), source_code)
+    create_file('{path}/stdin.txt'.format(path=path), test)
+    return id

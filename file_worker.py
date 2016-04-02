@@ -1,6 +1,5 @@
 from subprocess import Popen, PIPE
 
-
 class Status:
   OK = 0
   Compiling = 1
