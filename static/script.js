@@ -1,4 +1,4 @@
-STATUS = ['OK', 'Compiling', 'Running', 'Compilation error', 'Time limit', 'Runtime error', 'Memory limit', 'Queue']
+STATUS = ['OK', 'Compiling', 'Running', 'Compilation error', 'Time limit', 'Runtime error', 'Memory limit', 'Queue', 'Check Failed']
 
 $("#refresh-table").click(refresh_table = function() {
   $.ajax({
@@ -15,13 +15,19 @@ $("#send-code").click(function() {
   source_code = $("#source-code").val()
   test = $("#test").val()
   lang = $("#langs-list").val()
-  time_limit = $("#time-limit").val()
+  cpu_time_limit = $("#cpu-time-limit").val()
+  real_time_limit = $("#real-time-limit").val()
   memory_limit = $("#memory-limit").val()
   $.post({
     url: "send-code",
-    data: { source_code, test, lang, time_limit, memory_limit },
+    data: { source_code, test, lang, cpu_time_limit, real_time_limit, memory_limit },
     success: function(data) {
-      alert("OK")
+      if (data.code == 0)
+        alert("OK")
+      else if (data.code == 1)
+        alert("Type error")
+      else if (data.code == 2)
+        alert("Value error")
       refresh_table()
     }
   })

@@ -5,29 +5,29 @@ from .solution import Solution
 from os.path import isfile
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
-from threading import Thread
 
 
 @view_config(route_name='home')
 def my_view(request):
   return FileResponse('static/index.html', request=request)
 
-@view_config(route_name='get-session')
-def get_session(request):
-  session = request.session
-  return Response(json_body=session)
-
 @view_config(route_name='send-code')
 def send_code(request):
-  session = request.session
 
-  solution_id = Solution.create(request.params['source_code'], request.params['test'], int(request.params['lang']), int(request.params['time_limit']), int(request.params['memory_limit']))
-  redis.publish('run_solution', solution_id)
+  try:
+    solution_id = Solution.create(request.params)
+  except TypeError:
+    return Response(json_body={'code': 1})
+  except ValueError:
+    return Response(json_body={'code': 2})
 
-  if 'solutions' not in session:
-    session['solutions'] = list()
-  session['solutions'].append(solution_id)
-  return Response()
+  redis.rpush('solution:queue', solution_id)
+  redis.publish('run_solution', 'new_solution')
+
+  if 'solutions' not in request.session:
+    request.session['solutions'] = list()
+  request.session['solutions'].append(solution_id)
+  return Response(json_body={'code': 0})
 
 @view_config(route_name='get-solutions')
 def get_solutions(request):

@@ -1,4 +1,4 @@
-from redis import Redis
+from redis_connect import redis
 from solution import Solution
 from threading import Thread
 
@@ -12,17 +12,17 @@ class Listener(Thread):
   def run(self):
     for item in self.pubsub.listen():
       channel = item['channel'].decode()
-      data = item['data']
 
       if channel == 'run_solution':
-        solution_id = int(data)
-        if solution_id != 1:
+        while redis.llen('solution:queue'):
+          solution_id = int(self.redis.lpop('solution:queue') or 0)
+          if solution_id == 0:
+            break
           solution = Solution(solution_id)
           thread = Thread(target=solution.run)
           thread.daemon = True
           thread.start()
 
 if __name__ == '__main__':
-  redis = Redis()
   client = Listener(redis, ['run_solution'])
   client.start()

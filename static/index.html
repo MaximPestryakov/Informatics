@@ -18,11 +18,14 @@
     {%/each%}
   </script>
   <br>
-  Ограничение времени (сек): <br>
-  <input id="time-limit" type="number"></input>
+  CPU time limit (sec): <br>
+  <input id="cpu-time-limit" type="number" min="1" max="10" value="10"></input>
   <br>
-  Ограничение памяти (мб): <br>
-  <input id="memory-limit" type="number"></input>
+   Real time limit (sec): <br>
+  <input id="real-time-limit" type="number" min="1" max="10" value="10"></input>
+  <br>
+  Memory limit (MB): <br>
+  <input id="memory-limit" type="number" min="1" max="512" value="512"></input>
   <br>
   <button id="send-code">Отправить код</button>
   <button id="refresh-table">Обновить</button>
@@ -32,7 +35,8 @@
         <td><b>ID</b></td>
         <td><b>Status</b></td>
         <td><b>Lang</b></td>
-        <td><b>Time limit</b></td>
+        <td><b>CPU time limit</b></td>
+        <td><b>Real time limit</b></td>
         <td><b>Memory limit</b></td>
         <td><b>CPU time</b></td>
         <td><b>Real time</b></td>
@@ -52,7 +56,8 @@
       <td>${id}</td>
       <td>${status}</td>
       <td>${lang}</td>
-      <td>${time_limit} s</td>
+      <td>${cpu_time_limit} s</td>
+      <td>${real_time_limit} s</td>
       <td>${memory_limit} MB</td>
       <td>${cputime} ms</td>
       <td>${realtime} ms</td>

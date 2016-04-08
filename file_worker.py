@@ -9,6 +9,7 @@ class Status:
   RT = 5
   ML = 6
   Queue = 7
+  CF = 8
 
   def __setattr__(self, name, value):
     raise ValueError('assignment of read-only variable \'%s\'' % name)
