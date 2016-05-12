@@ -58,9 +58,9 @@ class Solution:
     info.id = solution_id
     info.status = int(redis.get('solution:{id}:status'.format(id=solution_id)))
     info.lang_id = int(redis.get('solution:{id}:lang'.format(id=solution_id)))
-    info.cpu_time_limit = int(redis.get('solution:{id}:cpu-tl'.format(id=solution_id)))
-    info.real_time_limit = int(redis.get('solution:{id}:real-tl'.format(id=solution_id)))
-    info.memory_limit = int(redis.get('solution:{id}:memory'.format(id=solution_id)))
+    info.cpu_time_limit = int(redis.get('solution:{id}:cpu-tl'.format(id=solution_id)) or 0)
+    info.real_time_limit = int(redis.get('solution:{id}:real-tl'.format(id=solution_id)) or 0)
+    info.memory_limit = int(redis.get('solution:{id}:memory'.format(id=solution_id)) or 0)
     info.cputime = int(redis.get('solution:{id}:cputime'.format(id=solution_id)) or 0)
     info.realtime = int(redis.get('solution:{id}:realtime'.format(id=solution_id)) or 0)
     info.vmsize = int(redis.get('solution:{id}:vmsize'.format(id=solution_id)) or 0)
@@ -70,18 +70,25 @@ class Solution:
 
   @staticmethod
   def create(params):
-    if not params['lang'].isdigit() or not params['cpu_time_limit'].isdigit() or not params['real_time_limit'].isdigit() or not params['memory_limit'].isdigit():
+    lang = params.get('lang', '1')
+    cpu_time_limit = params.get('cpu_time_limit', '10')
+    real_time_limit = params.get('real_time_limit', '10')
+    memory_limit = params.get('memory_limit', '512')
+
+    if not lang.isdigit() or not cpu_time_limit.isdigit() or not real_time_limit.isdigit() or not memory_limit.isdigit():
       raise TypeError
 
-    lang = int(params.get('lang', 1))
-    cpu_time_limit = int(params.get('cpu_time_limit', 10))
-    real_time_limit = int(params.get('real_time_limit', 10))
-    memory_limit = int(params.get('memory_limit', 512))
+    lang = int(lang)
+    cpu_time_limit = int(cpu_time_limit)
+    real_time_limit = int(real_time_limit)
+    memory_limit = int(memory_limit)
 
     if not LANGS.get(lang) or 1 > cpu_time_limit < 10 or 1 > real_time_limit < 10 or 1 > memory_limit < 512:
       raise ValueError
 
-    id = redis.incr('solution:id')
+    id = params.get('id')
+    if id == None:
+      id = redis.incr('solution:id')
     redis.set('solution:{id}:lang'.format(id=id), lang)
     redis.set('solution:{id}:cpu-tl'.format(id=id), cpu_time_limit)
     redis.set('solution:{id}:real-tl'.format(id=id), real_time_limit)

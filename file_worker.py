@@ -1,4 +1,6 @@
 from subprocess import Popen, PIPE
+import gzip
+import os
 
 class Status:
   OK = 0
@@ -17,8 +19,28 @@ Status = Status()
 
 def run_process(args):
   proc = Popen(args, stdout=PIPE, stderr=PIPE, shell=True)
-  return tuple(val.decode() for val in proc.communicate())
+  return tuple(map(lambda s: s.decode(), proc.communicate()))
 
 def create_file(file_path, text):
   with open(file_path, 'w') as file:
     file.write(text)
+
+def submit_path(contest_id, submit_id):
+  return os.path.join('/home/judges/', '{:0>6}'.format(contest_id), 'var/archive/runs', to32(submit_id // 32 // 32 // 32 % 32), to32(submit_id // 32 // 32 % 32), to32(submit_id // 32 % 32), '{:0>6}'.format(submit_id))
+
+def read_file(path):
+  result = str()
+  try:
+    with open(path, 'r') as file:
+      result = file.read()
+  except FileNotFoundError:
+    with gzip.open(path + '.gz', 'r') as file:
+      result = file.read().decode()
+  return result
+
+
+def to32(num):
+  if num < 10:
+    return str(num)
+  else:
+    return chr(ord('A') + num - 10)

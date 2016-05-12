@@ -11,9 +11,34 @@ from pyramid.view import view_config
 def my_view(request):
   return FileResponse('static/index.html', request=request)
 
+@view_config(route_name='hack')
+def hack(request):
+  contest_id = request.params['contest_id']
+  submit_id = request.params['submit_id']
+  hacking_test = request.params['hacking_test']
+  lang_id = request.params['lang']
+  hack_id = redis.incr('hack:id')
+  solution_id = redis.incr('solution:id')
+
+  redis.set('hack:{id}:contest'.format(id=hack_id), contest_id)
+  redis.set('hack:{id}:submit'.format(id=hack_id), submit_id)
+  redis.set('hack:{id}:test'.format(id=hack_id), hacking_test)
+  redis.set('hack:{id}:lang'.format(id=hack_id), lang_id)
+  redis.set('hack:{id}:solution'.format(id=hack_id), solution_id)
+
+  redis.set('solution:{id}:status'.format(id=solution_id), Status.Queue)
+  redis.set('solution:{id}:lang'.format(id=solution_id), lang_id)
+
+  redis.rpush('hack:queue', hack_id)
+  redis.publish('hack_solution', 'new_hack')
+
+  if 'solutions' not in request.session:
+    request.session['solutions'] = list()
+  request.session['solutions'].append(solution_id)
+  return Response(json_body={'code': 0})
+
 @view_config(route_name='send-code')
 def send_code(request):
-
   try:
     solution_id = Solution.create(request.params)
   except TypeError:
