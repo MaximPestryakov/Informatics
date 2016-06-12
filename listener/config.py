@@ -1,6 +1,20 @@
+class Status:
+  OK = 0
+  Compiling = 1
+  Running = 2
+  CE = 3
+  TL = 4
+  RT = 5
+  ML = 6
+  Queue = 7
+  CF = 8
+  def __setattr__(self, name, value):
+    raise ValueError('assignment of read-only variable \'%s\'' % name)
+Status = Status()
+
 EXECUTOR = '/opt/ejudge/bin/ejudge-execute'
-COMPILER = '/home/pestryakov/judges/compile/scripts/'
-SOLUTIONS = '/home/pestryakov/informatics_project/informatics_project/solutions'
+COMPILER = '/home/judges/compile/scripts/'
+SOLUTIONS = '/home/pestryakov/listener/solutions'
 LANGS = {
   1: {
     'name': 'Free Pascal',

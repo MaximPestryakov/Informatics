@@ -28,14 +28,14 @@
     <input id="real-time-limit" type="number" min="1" max="10" value="10">
     <br> Memory limit (MB): <br>
     <input id="memory-limit" type="number" min="1" max="512" value="512">
-  </div>
-  <br>
-  <select id="langs-list"></select>
-  <script id="langs-list-template" type="text/x-jquery-tmpl">
+    <br>
+    <select id="langs-list"></select>
+    <script id="langs-list-template" type="text/x-jquery-tmpl">
     {%each langs%}
     <option value="${id}">${name} ${version}</option>
     {%/each%}
   </script>
+  </div>
   <br>
   <button id="send-code">OK</button>
   <button id="refresh-table">Refresh</button>

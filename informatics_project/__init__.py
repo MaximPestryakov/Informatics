@@ -5,9 +5,6 @@ from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 
 def main(global_config, **settings):
-  if not isdir(SOLUTIONS):
-    mkdir(SOLUTIONS)
-
   session = SignedCookieSessionFactory(secret='mktmDndvkVMjXOGMOETLhxyFExJOdW', max_age=60*60*24*365*50)
   config = Configurator(settings=settings, session_factory=session)
 
@@ -19,6 +16,5 @@ def main(global_config, **settings):
   config.add_route('hack', '/hack')
   config.add_route('home', '/')
   config.add_route('send-code', '/send-code')
-
-  config.scan(ignore='.redis_listener')
+  config.scan()
   return config.make_wsgi_app()

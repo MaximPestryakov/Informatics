@@ -48,14 +48,12 @@ $("#send-code").click(function() {
     contest_id = $("#contest-id").val()
     submit_id = $("#submit-id").val()
     hacking_test = $("#test").val()
-    lang = $("#langs-list").val()
     $.post({
       url: "hack",
       data: {
         contest_id,
         submit_id,
         hacking_test,
-        lang
       },
       success: function(data) {
         refresh_table()
